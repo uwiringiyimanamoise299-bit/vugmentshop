@@ -122,7 +122,7 @@ export default function ProductsPage() {
                     max={2000}
                     step={10}
                     value={priceRange}
-                    onValueChange={setPriceRange}
+                    onValueChange={(value) => setPriceRange(Array.isArray(value) ? [...value] : [value])}
                     className="mb-6"
                   />
                   <div className="flex items-center justify-between gap-4">
