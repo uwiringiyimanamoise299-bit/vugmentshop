@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.email == 'uwiringiyimanamoise700@gmail.com';
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // Users can read their own profile, admins can read all profiles
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can create their own profile during signup
+      allow create: if isOwner(userId);
+      
+      // Users can update their own profile, but cannot elevate their own role to admin
+      allow update: if (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])) || isAdmin();
+      
+      allow delete: if isAdmin();
+    }
+    
+    // Products Collection
+    // Anyone can read products (public storefront)
+    // Only admins can create, update, or delete products
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      allow read: if isOwner(resource.data.user_id) || isAdmin();
+      // Allow create if user_id matches the auth uid
+      allow create: if isAuthenticated() && request.resource.data.user_id == request.auth.uid;
+      allow update, delete: if isAdmin() || (isOwner(resource.data.user_id) && request.resource.data.user_id == request.auth.uid);
+    }
+    
+    // Payments Collection
+    match /payments/{paymentId} {
+      allow read: if isOwner(resource.data.user_id) || isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.user_id == request.auth.uid;
+      allow update, delete: if isAdmin() || (isOwner(resource.data.user_id) && request.resource.data.user_id == request.auth.uid);
+    }
+
+    // Fallback: Deny everything else by default until explicitly allowed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
