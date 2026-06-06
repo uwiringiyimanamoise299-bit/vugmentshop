@@ -65,7 +65,7 @@ export default function ProductsPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Select value={sortOrder} onValueChange={setSortOrder}>
+              <Select value={sortOrder} onValueChange={(value) => setSortOrder(value ?? 'featured')}>
                 <SelectTrigger className="w-full sm:w-[180px] bg-background">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
