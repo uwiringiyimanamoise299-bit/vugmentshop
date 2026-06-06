@@ -126,11 +126,13 @@ export default function OrdersPage() {
                     
                     {(order.status === 'Rejected' || order.status === 'Pending') && (
                       <Dialog>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant={order.status === 'Rejected' ? "destructive" : "default"} onClick={() => setSelectedOrder(order)}>
-                            {order.status === 'Rejected' ? 'Resubmit Payment' : 'Submit Payment Proof'}
-                          </Button>
-                        </DialogTrigger>
+                        <DialogTrigger
+                          render={
+                            <Button size="sm" variant={order.status === 'Rejected' ? "destructive" : "default"} onClick={() => setSelectedOrder(order)}>
+                              {order.status === 'Rejected' ? 'Resubmit Payment' : 'Submit Payment Proof'}
+                            </Button>
+                          }
+                        />
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle>{order.status === 'Rejected' ? 'Resubmit Payment Proof' : 'Submit Payment Proof'}</DialogTitle>
